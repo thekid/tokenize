@@ -183,4 +183,12 @@ abstract class TokenizerTests extends \unittest\TestCase {
       3
     );
   }
+
+  #[@test]
+  public function doc_comment() {
+    $this->assertTokens(
+      [[T_DOC_COMMENT, '/** @return */', 2]],
+      $this->tokensIn('/** @return */')
+    );
+  }
 }

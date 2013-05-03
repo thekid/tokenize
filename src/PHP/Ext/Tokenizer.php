@@ -313,7 +313,11 @@ class Tokenizer {
             $s+= $e + 1;
           } while ('/' !== $source{$s});
           $comment.= '/';
-          $result[]= array(T_COMMENT, $comment, $n);
+          $result[]= array(
+            0 === strncmp($comment, '/**', 3) && '/' !== $comment{3} ? T_DOC_COMMENT : T_COMMENT,
+            $comment,
+            $n
+          );
           $n+= substr_count($comment, "\n");
           $o= $s + 1;
           continue;
