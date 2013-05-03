@@ -298,10 +298,18 @@ class Tokenizer {
       if ('/' === $token) {
         $s= $o + $t;
         if ('/' === $source{$s + 1}) {
-          $e= strcspn($source, "\n", $s + 1);
-          $result[]= array(T_COMMENT, substr($source, $s, $e + 2), $n);
-          $n++;
-          $o+= $e + 2;
+          $e= strcspn($source, "\n", $s + 2);
+          $comment= substr($source, $s, $e + 3);
+          $result[]= array(T_COMMENT, $comment, $n);
+          $n+= substr_count($comment, "\n");
+          $o+= $e + 3;
+          continue;
+        } else if ('*' === $source{$s + 1}) {
+          $e= strcspn($source, '*', $s + 2);
+          $comment= substr($source, $s, $e + 3 + 1);
+          $result[]= array(T_COMMENT, $comment, $n);
+          $n+= substr_count($comment, "\n");
+          $o+= $e + 3 + 1;
           continue;
         }
       }
