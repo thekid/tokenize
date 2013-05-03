@@ -8,6 +8,6 @@ class PhpTokenizerTests extends TokenizerTests {
    * @return var[]
    */
   protected function tokensIn($source) {
-    return token_get_all($source);
+    return token_get_all("<?php\n".$source."\n?>");
   }
 }

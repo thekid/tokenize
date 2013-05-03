@@ -20,7 +20,7 @@ abstract class TokenizerTests extends \unittest\TestCase {
     foreach ($tokens as $token) {
       $s.= ', '.(is_array($token) ? '['.implode(', ', $token).']' : $token);
     }
-    return '['.substr($s, 2).']';
+    return new Bytes('['.substr($s, 2).']');
   }
 
   /**
@@ -30,9 +30,10 @@ abstract class TokenizerTests extends \unittest\TestCase {
    * @param  var[] $actual The list from the tokensIn() method
    * @throws unittest.AssertionFailedError
    */
-  protected function assertTokens($expected, $actual) {
-    array_unshift($expected, [T_OPEN_TAG, '<?php ', 1]);
-    $expected[]= [T_CLOSE_TAG, '?>', 1];
+  protected function assertTokens($expected, $actual, $l= 2) {
+    array_unshift($expected, [T_OPEN_TAG, "<?php\n", 1]);
+    $expected[]= [T_WHITESPACE, "\n", $l];
+    $expected[]= [T_CLOSE_TAG, '?>', ++$l];
     $this->assertEquals($this->tokenString($expected), $this->tokenString($actual));
   }
 
@@ -40,79 +41,96 @@ abstract class TokenizerTests extends \unittest\TestCase {
   public function opening_and_closing() {
     $this->assertTokens(
       [],
-      $this->tokensIn('<?php ?>')
+      $this->tokensIn('')
     );
   }
 
   #[@test]
   public function variable() {
     $this->assertTokens(
-      [[T_VARIABLE, '$a', 1], [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php $a ?>')
+      [[T_VARIABLE, '$a', 2]],
+      $this->tokensIn('$a')
     );
   }
 
   #[@test]
   public function int_literal() {
     $this->assertTokens(
-      [[T_LNUMBER, '1', 1], [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php 1 ?>')
+      [[T_LNUMBER, '1', 2]],
+      $this->tokensIn('1')
     );
   }
 
   #[@test]
   public function float_literal() {
     $this->assertTokens(
-      [[T_DNUMBER, '1.1', 1], [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php 1.1 ?>')
+      [[T_DNUMBER, '1.1', 2]],
+      $this->tokensIn('1.1')
     );
   }
 
   #[@test]
   public function bool_literal() {
     $this->assertTokens(
-      [[T_STRING, 'true', 1], [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php true ?>')
+      [[T_STRING, 'true', 2]],
+      $this->tokensIn('true')
     );
   }
 
   #[@test]
   public function dq_string_literal() {
     $this->assertTokens(
-      [[T_CONSTANT_ENCAPSED_STRING, '"Hello"', 1], [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php "Hello" ?>')
+      [[T_CONSTANT_ENCAPSED_STRING, '"Hello"', 2]],
+      $this->tokensIn('"Hello"')
     );
   }
 
   #[@test]
   public function sq_string_literal() {
     $this->assertTokens(
-      [[T_CONSTANT_ENCAPSED_STRING, "'Hello'", 1], [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn("<?php 'Hello' ?>")
+      [[T_CONSTANT_ENCAPSED_STRING, "'Hello'", 2]],
+      $this->tokensIn("'Hello'")
     );
   }
 
   #[@test]
   public function exec_literal() {
     $this->assertTokens(
-      ['`', [T_ENCAPSED_AND_WHITESPACE, 'Hello', 1], '`', [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php `Hello` ?>')
+      ['`', [T_ENCAPSED_AND_WHITESPACE, 'Hello', 2], '`'],
+      $this->tokensIn('`Hello`')
     );
   }
 
   #[@test]
   public function empty_array_literal() {
     $this->assertTokens(
-      [[T_ARRAY, 'array', 1], '(', ')', [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php array() ?>')
+      [[T_ARRAY, 'array', 2], '(', ')'],
+      $this->tokensIn('array()')
     );
   }
 
   #[@test]
   public function empty_array_bracket_literal() {
     $this->assertTokens(
-      ['[', ']', [T_WHITESPACE, ' ', 1]],
-      $this->tokensIn('<?php [] ?>')
+      ['[', ']'],
+      $this->tokensIn('[]')
+    );
+  }
+
+  #[@test]
+  public function new_and_class_name() {
+    $this->assertTokens(
+      [[T_NEW, 'new', 2], [T_WHITESPACE, ' ', 2], [T_STRING, 'Object', 2], '(', ')'],
+      $this->tokensIn('new Object()')
+    );
+  }
+
+  #[@test]
+  public function single_line_comment() {
+    $this->assertTokens(
+      [[T_COMMENT, "// Comment\n", 2]],
+      $this->tokensIn("// Comment\n"),
+      3
     );
   }
 }

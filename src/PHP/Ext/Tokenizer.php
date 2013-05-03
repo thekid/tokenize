@@ -147,7 +147,7 @@ class Tokenizer {
   public static function tokensIn($source) {
     static $delimiters= " ^|&?!.:;,@%~=<>(){}[]#+-*/\"'\r\n\t\$`\\";
     static $tokens= array(
-      '<' => array('<?php ' => T_OPEN_TAG, '<?=' => T_OPEN_TAG_WITH_ECHO, '<<=' => T_SL_EQUAL, '<<' => T_SL, '<=' => T_IS_SMALLER_OR_EQUAL, '<>' => T_IS_NOT_EQUAL),
+      '<' => array('<?php ' => T_OPEN_TAG, "<?php\n" => T_OPEN_TAG, '<?=' => T_OPEN_TAG_WITH_ECHO, '<<=' => T_SL_EQUAL, '<<' => T_SL, '<=' => T_IS_SMALLER_OR_EQUAL, '<>' => T_IS_NOT_EQUAL),
       '>' => array('>>=' => T_SR_EQUAL, '>>' => T_SR, '>=' => T_IS_GREATER_OR_EQUAL),
       '?' => array('?>' => T_CLOSE_TAG),
       '+' => array('+=' => T_PLUS_EQUAL, '++' => T_INC),
@@ -257,7 +257,7 @@ class Tokenizer {
         $word= substr($source, $o, $t);
         $token= $source{$o + $t};
       }
-      echo "o = $o, t = $t, word = $word, token = "; var_dump($token);
+      //echo "o = $o, t = $t, word = $word, token = "; var_dump($token);
 
       if (NULL !== $word) {
         if (isset($keywords[$word])) {
@@ -294,6 +294,18 @@ class Tokenizer {
         continue;
       }
 
+      // Comments
+      if ('/' === $token) {
+        $s= $o + $t;
+        if ('/' === $source{$s + 1}) {
+          $e= strcspn($source, "\n", $s + 1);
+          $result[]= array(T_COMMENT, substr($source, $s, $e + 2), $n);
+          $n++;
+          $o+= $e + 2;
+          continue;
+        }
+      }
+
       // Exec
       if ('`' === $token) {
         $s= $o + $t;
@@ -325,7 +337,9 @@ class Tokenizer {
           }
         }
         if ($found) {
-          $result[]= array($found, substr($source, $s, $v), $n);
+          $token= substr($source, $s, $v);
+          $result[]= array($found, $token, $n);
+          $n+= substr_count($token, "\n");
           $t+= $v - 1;
         } else {
           $result[]= $token;

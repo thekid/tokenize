@@ -8,7 +8,7 @@ class SnapInTokenizerTests extends TokenizerTests {
    * @return var[]
    */
   protected function tokensIn($source) {
-    return PHP\Ext\Tokenizer::tokensIn($source);
+    return PHP\Ext\Tokenizer::tokensIn("<?php\n".$source."\n?>");
   }
 
   /**
