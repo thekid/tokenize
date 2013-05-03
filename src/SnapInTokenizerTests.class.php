@@ -26,4 +26,23 @@ class SnapInTokenizerTests extends TokenizerTests {
   public function name($name, $token) {
     $this->assertEquals($name, PHP\Ext\Tokenizer::nameOf($token));
   }
+
+  /**
+   * Creates a list of all tokens for the name() test
+   */
+  public function keywords() {
+    $result= [];
+    foreach (PHP\Ext\Tokenizer::$keywords as $string => $token) {
+      $result[]= [$string, $token];
+    }
+    return $result;
+  }
+
+  #[@test, @values('keywords')]
+  public function keyword($keyword, $token) {
+    $this->assertTokens(
+      [[$token, $keyword, 2]],
+      $this->tokensIn($keyword)
+    );
+  }
 }
