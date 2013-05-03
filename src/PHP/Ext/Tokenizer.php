@@ -305,11 +305,17 @@ class Tokenizer {
           $o+= $e + 3;
           continue;
         } else if ('*' === $source{$s + 1}) {
-          $e= strcspn($source, '*', $s + 2);
-          $comment= substr($source, $s, $e + 3 + 1);
+          $comment= '/*';
+          $s= $s + 2;
+          do {
+            $e= strcspn($source, '*', $s);
+            $comment.= substr($source, $s, $e).'*';
+            $s+= $e + 1;
+          } while ('/' !== $source{$s});
+          $comment.= '/';
           $result[]= array(T_COMMENT, $comment, $n);
           $n+= substr_count($comment, "\n");
-          $o+= $e + 3 + 1;
+          $o= $s + 1;
           continue;
         }
       }

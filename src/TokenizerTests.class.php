@@ -152,6 +152,30 @@ abstract class TokenizerTests extends \unittest\TestCase {
   }
 
   #[@test]
+  public function empty_multi_line_comment() {
+    $this->assertTokens(
+      [[T_COMMENT, '/**/', 2]],
+      $this->tokensIn('/**/')
+    );
+  }
+
+  #[@test]
+  public function multi_line_comment_with_one_space() {
+    $this->assertTokens(
+      [[T_COMMENT, '/* */', 2]],
+      $this->tokensIn('/* */')
+    );
+  }
+
+  #[@test]
+  public function multi_line_comment_with_one_star() {
+    $this->assertTokens(
+      [[T_COMMENT, '/* * */', 2]],
+      $this->tokensIn('/* * */')
+    );
+  }
+
+  #[@test]
   public function multi_line_comment_spanning_multiple_lines() {
     $this->assertTokens(
       [[T_COMMENT, "/* Comment\nContinued */", 2]],
