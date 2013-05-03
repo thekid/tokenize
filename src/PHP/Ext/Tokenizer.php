@@ -278,7 +278,10 @@ class Tokenizer {
 
       // Whitespace
       if (FALSE !== strpos(" \n\r\t", $token)) {
-        $o+= $t + 1;
+        $s= $o + $t + 1;
+        $e= strspn($source, " \n\r\t", $s);
+        $o= $s + $e;
+        $token.= substr($source, $s, $e);
         $result[]= array(T_WHITESPACE, $token, $n);
         $n+= substr_count($token, "\n");
         continue;

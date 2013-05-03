@@ -46,6 +46,40 @@ abstract class TokenizerTests extends \unittest\TestCase {
   }
 
   #[@test]
+  public function single_whitespace() {
+    $this->assertTokens(
+      [[T_WHITESPACE, ' ', 2], ';'],
+      $this->tokensIn(' ;')
+    );
+  }
+
+  #[@test]
+  public function multiple_whitespace() {
+    $this->assertTokens(
+      [[T_WHITESPACE, '  ', 2], ';'],
+      $this->tokensIn('  ;')
+    );
+  }
+
+  #[@test]
+  public function double_newline() {
+    $this->assertTokens(
+      [[T_WHITESPACE, "\n\n", 2], ';'],
+      $this->tokensIn("\n\n;"),
+      4
+    );
+  }
+
+  #[@test]
+  public function double_windows_newline() {
+    $this->assertTokens(
+      [[T_WHITESPACE, "\r\n\r\n", 2], ';'],
+      $this->tokensIn("\r\n\r\n;"),
+      4
+    );
+  }
+
+  #[@test]
   public function variable() {
     $this->assertTokens(
       [[T_VARIABLE, '$a', 2]],
