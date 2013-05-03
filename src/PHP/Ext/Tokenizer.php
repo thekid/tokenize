@@ -295,7 +295,15 @@ class Tokenizer {
       }
 
       // Comments
-      if ('/' === $token) {
+      if ('#' === $token) {
+        $s= $o + $t;
+        $e= strcspn($source, "\n", $s + 1);
+        $comment= substr($source, $s, $e + 2);
+        $result[]= array(T_COMMENT, $comment, $n);
+        $n+= substr_count($comment, "\n");
+        $o+= $e + 2;
+        continue;
+      } else if ('/' === $token) {
         $s= $o + $t;
         if ('/' === $source{$s + 1}) {
           $e= strcspn($source, "\n", $s + 2);

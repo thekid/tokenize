@@ -135,6 +135,15 @@ abstract class TokenizerTests extends \unittest\TestCase {
   }
 
   #[@test]
+  public function hash_line_comment() {
+    $this->assertTokens(
+      [[T_COMMENT, "# Comment\n", 2]],
+      $this->tokensIn("# Comment\n"),
+      3
+    );
+  }
+
+  #[@test]
   public function empty_single_line_comment() {
     $this->assertTokens(
       [[T_COMMENT, "//\n", 2]],
