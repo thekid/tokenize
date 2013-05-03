@@ -20,7 +20,7 @@ abstract class TokenizerTests extends \unittest\TestCase {
     foreach ($tokens as $token) {
       $s.= ', '.(is_array($token) ? '['.implode(', ', $token).']' : $token);
     }
-    return new Bytes('['.substr($s, 2).']');
+    return '['.substr($s, 2).']';
   }
 
   /**
@@ -198,6 +198,20 @@ abstract class TokenizerTests extends \unittest\TestCase {
     $this->assertTokens(
       [[T_DOC_COMMENT, '/** @return */', 2]],
       $this->tokensIn('/** @return */')
+    );
+  }
+
+  #[@test]
+  public function closure() {
+    $x= [T_VARIABLE, '$x', 2];
+    $w= [T_WHITESPACE, ' ', 2];
+    $this->assertTokens(
+      [
+        [T_FUNCTION, 'function', 2], '(', $x, ')', $w, '{',
+        $w, [T_RETURN, 'return', 2], $w, $x, [T_INC, '++', 2], ';', $w,
+        '}'
+      ],
+      $this->tokensIn('function($x) { return $x++; }')
     );
   }
 }
